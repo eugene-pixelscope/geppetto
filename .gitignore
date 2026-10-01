@@ -13,3 +13,5 @@ node_modules/
 htmlcov/
 .mypy_cache/
 .ruff_cache/
+*.orig
+*.rej
