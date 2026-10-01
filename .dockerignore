@@ -1,0 +1,7 @@
+.git
+.venv
+.uv-cache
+.browsers
+local
+**/__pycache__
+.env
