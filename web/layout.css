@@ -5,6 +5,11 @@ body{font-size:14px;line-height:1.5}h1{font-size:26px;line-height:1.3;letter-spa
 .brand-logo{display:block;width:52px;height:52px;flex:0 0 52px;object-fit:contain;border-radius:50%}
 .login-logo{display:block;width:88px;height:88px;object-fit:contain;border-radius:50%;margin:0 auto 20px}
 
+/* Checkbox controls are not text fields; keep their box and baseline consistent in training management. */
+.training-management input[type=checkbox],.platform-management input[type=checkbox]{width:18px;height:18px;min-height:18px;padding:0;margin:1px 0 0;border-radius:3px;flex:0 0 18px;accent-color:#1677dc}
+.training-management label:has(>input[type=checkbox]),.platform-management label:has(>input[type=checkbox]){display:flex;flex-direction:row;align-items:flex-start;gap:8px;line-height:20px}
+.training-management .dataset-option input[type=checkbox]{margin-top:1px}
+
 /* Scalar controls and layered curves, inspired by TensorBoard. */
 .chart-controls{display:flex;align-items:end;gap:12px;flex-wrap:wrap;margin:16px 0 8px}
 .chart-controls label,.chart-smoothing>label{margin:0 0 4px;font-size:11px;font-weight:500;color:#666}
