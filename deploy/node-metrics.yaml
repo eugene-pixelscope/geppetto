@@ -1,0 +1,75 @@
+# Apply once per connected cluster. Collector never requests or reserves a GPU.
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: geppetto-node-metrics
+  namespace: geppetto-agent
+spec:
+  selector:
+    matchLabels: {app: geppetto-node-metrics}
+  template:
+    metadata:
+      labels: {app: geppetto-node-metrics}
+    spec:
+      automountServiceAccountToken: false
+      hostNetwork: true
+      containers:
+      - name: metrics
+        image: geppetto:20260929-02
+        imagePullPolicy: IfNotPresent
+        command: [python, -m, geppetto.node_metrics]
+        env:
+        - {name: NVIDIA_VISIBLE_DEVICES, value: all}
+        - {name: NVIDIA_DRIVER_CAPABILITIES, value: utility}
+        ports:
+        - {containerPort: 9108, name: metrics}
+        resources:
+          requests: {cpu: 20m, memory: 32Mi}
+          limits: {cpu: 200m, memory: 128Mi}
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 10001
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          capabilities: {drop: [ALL]}
+        volumeMounts:
+        - {name: proc, mountPath: /host/proc, readOnly: true}
+        - {name: root, mountPath: /host/root, readOnly: true}
+      volumes:
+      - name: proc
+        hostPath: {path: /proc, type: Directory}
+      - name: root
+        hostPath: {path: /, type: Directory}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata: {name: geppetto-node-metrics}
+rules:
+- apiGroups: [metrics.k8s.io]
+  resources: [nodes]
+  verbs: [get, list]
+- apiGroups: ['']
+  resources: [pods]
+  verbs: [list]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata: {name: geppetto-node-metrics}
+roleRef: {apiGroup: rbac.authorization.k8s.io, kind: ClusterRole, name: geppetto-node-metrics}
+subjects:
+- {kind: ServiceAccount, name: geppetto-agent, namespace: geppetto-agent}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata: {name: geppetto-node-metrics-proxy, namespace: geppetto-agent}
+rules:
+- apiGroups: ['']
+  resources: [pods/proxy]
+  verbs: [get]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata: {name: geppetto-node-metrics-proxy, namespace: geppetto-agent}
+roleRef: {apiGroup: rbac.authorization.k8s.io, kind: Role, name: geppetto-node-metrics-proxy}
+subjects:
+- {kind: ServiceAccount, name: geppetto-agent, namespace: geppetto-agent}

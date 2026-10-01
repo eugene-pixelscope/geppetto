@@ -1,0 +1,11 @@
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+const load=async path=>import('data:text/javascript;base64,'+Buffer.from(await readFile(new URL(path,import.meta.url),'utf8')).toString('base64'));
+const {blurDensity}=await load('../web/detection-heatmap.js');
+const source=Array(128*72).fill(0);source[36*128+64]=1;const density=blurDensity(source,128,72);
+assert.equal(source[36*128+64],1);assert.ok(density[36*128+64]>density[36*128+68]);assert.ok(density[36*128+68]>0);
+assert.ok(Math.abs(density.reduce((a,b)=>a+b,0)-1)<1e-10);assert.equal(blurDensity(Array(9).fill(0),3,3).reduce((a,b)=>a+b),0);
+const {detectionOverlay}=await load('../web/detection-overlay.js');
+const svg=detectionOverlay({width:100,height:100,truth:[{box:[.5,.5,.1,.1],missed:true}],predictions:[]});
+assert.ok(svg.includes('#22c55e'));assert.ok(svg.includes('#ef4444'));assert.ok(svg.includes('FN'));assert.ok(svg.indexOf('data-overlay="prediction"')<svg.indexOf('data-overlay="truth"'));
+console.log('PASS: density kernel conserves centered mass and GT remains green when missed.');

@@ -1,0 +1,12 @@
+[Unit]
+Description=Geppetto catalog
+
+[Service]
+WorkingDirectory=%h/geppetto
+Environment=GEPPETTO_ALLOWED_HOSTS=127.0.0.1,localhost,testserver,192.168.100.11
+ExecStart=%h/geppetto/tools/serve_local_catalog.sh
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=default.target

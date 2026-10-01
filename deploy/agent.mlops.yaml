@@ -1,0 +1,166 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: geppetto-agent
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: geppetto-agent
+  namespace: geppetto-agent
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: geppetto-agent-inventory
+rules:
+- apiGroups:
+  - ''
+  resources:
+  - nodes
+  verbs:
+  - get
+  - list
+- apiGroups:
+  - ''
+  resources:
+  - namespaces
+  resourceNames:
+  - kube-system
+  verbs:
+  - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: geppetto-agent-inventory
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: geppetto-agent-inventory
+subjects:
+- kind: ServiceAccount
+  name: geppetto-agent
+  namespace: geppetto-agent
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: geppetto-agent-inventory
+  namespace: geppetto-agent
+rules:
+- apiGroups:
+  - ''
+  resources:
+  - persistentvolumeclaims
+  verbs:
+  - get
+  - list
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: geppetto-agent-inventory
+  namespace: geppetto-agent
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: geppetto-agent-inventory
+subjects:
+- kind: ServiceAccount
+  name: geppetto-agent
+  namespace: geppetto-agent
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: geppetto-agent-state
+  namespace: geppetto-agent
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: geppetto-agent
+  namespace: geppetto-agent
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: geppetto-agent
+  template:
+    metadata:
+      labels:
+        app: geppetto-agent
+    spec:
+      serviceAccountName: geppetto-agent
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+      - name: agent
+        image: geppetto:20260927-16
+        command:
+        - python
+        - -m
+        - geppetto.agent
+        env:
+        - name: GEPPETTO_SERVER_URL
+          valueFrom:
+            secretKeyRef:
+              name: geppetto-agent-registration
+              key: server-url
+        - name: GEPPETTO_CLUSTER_ID
+          valueFrom:
+            secretKeyRef:
+              name: geppetto-agent-registration
+              key: cluster-id
+        - name: GEPPETTO_BOOTSTRAP_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: geppetto-agent-registration
+              key: bootstrap-token
+        - name: GEPPETTO_AGENT_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: GEPPETTO_SERVER_CA
+          value: /ca/ca.crt
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 250m
+            memory: 256Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+        volumeMounts:
+        - name: state
+          mountPath: /state
+        - name: ca
+          mountPath: /ca
+          readOnly: true
+        imagePullPolicy: Never
+      volumes:
+      - name: state
+        persistentVolumeClaim:
+          claimName: geppetto-agent-state
+      - name: ca
+        configMap:
+          name: geppetto-central-ca

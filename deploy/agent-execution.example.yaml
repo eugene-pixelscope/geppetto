@@ -1,0 +1,33 @@
+# Optional execution overlay. Apply only to the intended Agent namespace after
+# filling image digests/PVC names and mounting shared results. No hostPath access.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata: {name: geppetto-agent-execution, namespace: geppetto-agent}
+rules:
+  - apiGroups: [batch]
+    resources: [jobs]
+    verbs: [get, create, delete]
+  - apiGroups: [""]
+    resources: [pods, pods/log]
+    verbs: [get, list]
+- apiGroups: ['']
+  resources: [services]
+  verbs: [get, create]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata: {name: geppetto-agent-execution, namespace: geppetto-agent}
+roleRef: {apiGroup: rbac.authorization.k8s.io, kind: Role, name: geppetto-agent-execution}
+subjects:
+  - {kind: ServiceAccount, name: geppetto-agent, namespace: geppetto-agent}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata: {name: geppetto-agent-execution, namespace: geppetto-agent}
+data:
+  policy.json: |
+    {
+      "images": ["registry.example/model@sha256:REPLACE_WITH_64_HEX_DIGEST"],
+      "pvcs": ["geppetto-datasets", "geppetto-results"],
+      "results_pvc": "geppetto-results"
+    }

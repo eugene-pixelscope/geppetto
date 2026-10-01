@@ -1,0 +1,5 @@
+{
+  "data": {"root_dir": "/datasets/jersey-v1", "cache_dir": "/cache/preview"},
+  "logging": {"base_dir": "/outputs", "experiment_name": "preview-only"},
+  "wandb": {"enabled": false}
+}

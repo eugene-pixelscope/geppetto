@@ -1,0 +1,166 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: geppetto-system
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: geppetto-state
+  namespace: geppetto-system
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: geppetto
+  namespace: geppetto-system
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: geppetto
+  template:
+    metadata:
+      labels:
+        app: geppetto
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+      - image: geppetto:20260927-22
+        imagePullPolicy: Never
+        securityContext: &id001
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+        name: app
+        command:
+        - python
+        - -m
+        - uvicorn
+        - geppetto.app:create_app
+        - --factory
+        - --host
+        - 0.0.0.0
+        - --port
+        - '8443'
+        - --ssl-keyfile
+        - /tls/tls.key
+        - --ssl-certfile
+        - /tls/tls.crt
+        env:
+        - name: GEPPETTO_MODE
+          value: catalog
+        - name: GEPPETTO_HOME
+          value: /state
+        - name: GEPPETTO_ALLOWED_HOSTS
+          value: geppetto,geppetto.geppetto-system.svc,geppetto.geppetto-system.svc.cluster.local,127.0.0.1,localhost
+        - name: GEPPETTO_SECURE_COOKIE
+          value: '1'
+        - name: GEPPETTO_MLFLOW_URL
+          value: http://mlflow.mlops.svc:5000
+        - name: GEPPETTO_EXPERIMENT_MAP
+          value: '{"2":"ball-detection","5":"ball-detection"}'
+        - name: GEPPETTO_MLFLOW_RUN_IDS
+          value: '["de3450da71774bb4bb41c73c5d66d430","3bae118410ea4a88ac8be1acca5d88af","7db09f122b5247b4b206224b4140ad12"]'
+        - name: GEPPETTO_DATA_ROOTS
+          value: /datasets
+        - name: GEPPETTO_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: geppetto-access
+              key: token
+        ports:
+        - containerPort: 8443
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: '1'
+            memory: 1Gi
+        readinessProbe:
+          httpGet:
+            path: /api/health
+            port: 8443
+            scheme: HTTPS
+            httpHeaders:
+            - name: Host
+              value: localhost
+          periodSeconds: 5
+        volumeMounts:
+        - name: state
+          mountPath: /state
+        - name: tmp
+          mountPath: /tmp
+        - name: tls
+          mountPath: /tls
+          readOnly: true
+        - name: datasets
+          mountPath: /datasets
+          readOnly: true
+      - image: geppetto-mlops-compat:20260927-22
+        imagePullPolicy: Never
+        securityContext: *id001
+        name: mlflow-sync
+        command:
+        - python
+        - tools/sync_real_ball.py
+        - --home
+        - /state
+        - --url
+        - http://mlflow.mlops.svc:5000
+        - --watch
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 250m
+            memory: 256Mi
+        volumeMounts:
+        - name: state
+          mountPath: /state
+      volumes:
+      - name: state
+        persistentVolumeClaim:
+          claimName: geppetto-state
+      - name: tmp
+        emptyDir: {}
+      - name: tls
+        secret:
+          secretName: geppetto-tls
+          defaultMode: 288
+      - name: datasets
+        hostPath:
+          path: /datasets
+          type: Directory
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: geppetto
+  namespace: geppetto-system
+spec:
+  selector:
+    app: geppetto
+  ports:
+  - name: https
+    port: 443
+    targetPort: 8443

@@ -1,0 +1,68 @@
+{
+  "id": "jersey-vit-v1",
+  "name": "ViT Base · Digit-aware",
+  "category": "jersey-recognition",
+  "description": "Transformer · Dirichlet uncertainty · Auxiliary digit loss",
+  "version": "1",
+  "adapter": "jersey",
+  "bundle": "uncertainty-jnr.config.json",
+  "code_version": "0434562ea1497643e8230a6b25eb3d2932559f95",
+  "entrypoint": ["python", "/opt/geppetto/integrations/container_entrypoint.py"],
+  "image_digest": null,
+  "live_verified": false,
+  "capabilities": {
+    "resume": false,
+    "initialize": true,
+    "multi_gpu": false
+  },
+  "metrics": [
+    {
+      "key": "val/soccernet_test_sample_clean/top1_acc",
+      "label": "Top-1 accuracy",
+      "direction": "maximize",
+      "unit": "percent"
+    },
+    {
+      "key": "train/loss",
+      "label": "Training loss",
+      "direction": "minimize",
+      "unit": "scalar"
+    }
+  ],
+  "artifact_roles": {
+    "best_checkpoint.pt": "inference_weights",
+    "checkpoints/step_100.pt": "inference_weights"
+  },
+  "code_files": {
+    "config.py": "8a70cbfeaed4f0d07feab816b0101950075356100d9b12e407a64700f75b9165",
+    "configs/base8_reid.yaml": "50eb3074945056101596d3ec79d474b809d6efddf805b9c3f1ea140540484ee8",
+    "configs/sf1_id_cropped_transformer_da.yaml": "dca2d6362a5b3366ef89a260f5c2efa508f244dcca3b301500c603b913b8ccae",
+    "configs/sf1_id_cropped_transformer_tied.yaml": "119db09a74907b6a28ee82a0c29b87b4a4495d43f01a931722d69de66156fa27",
+    "configs/soccernet_full_base8_paper_aug.yaml": "defc0851694d8ddea9d9256f53bd36dca126de9ac8ed62cc851851f5164ee23a",
+    "configs/soccernet_full_da_paper_aug_auxdigit.yaml": "e6cedc17957936047b4df5eb20553700880a67432938734e94de5de57a12ee4d",
+    "configs/soccernet_full_da_paper_aug_auxdigit_clean.yaml": "92a1e00803005de74fdf367709b850ac209665f0ceb2a717c2667fc9f7591c0b",
+    "configs/soccernet_full_tied_paper_aug_auxdigit.yaml": "7c86733392c1e6dfb5f59801c498cbcc180d538a88b8b14aa4641b00d5aa9cc1",
+    "configs/soccernet_full_tied_paper_aug_auxdigit_clean.yaml": "e3667840e235f85433cab51138d3beaedb00ca0aa8dbfb55263f25a73185cbcd",
+    "pyproject.toml": "fba25ffd9474d492b794648744020a6dd37999974e9d3fe2eb091d60cfdf0b28",
+    "src/uncertainty_jnr/__init__.py": "219ec92e97b5038ce89a919dd5a57e53913bd4b46c83fd50b0f022d64d41922b",
+    "src/uncertainty_jnr/augmentation.py": "cab27f56a3116320c7791bdc60562949fea923288999c9d7a83f95224e706b57",
+    "src/uncertainty_jnr/data.py": "1c0b2f39c6d657c17df71857cd7ef303eb79219f8ad6e98080ec7a761ca7f814",
+    "src/uncertainty_jnr/datasets.py": "6bd827d5851a8252878cd60acad535d6bf188394a70ac3012f41a1ee47fc790d",
+    "src/uncertainty_jnr/explain_viz.py": "416b4b478cac4ec28402951738011d82297fbf469592c6e4e171beb7d91accf2",
+    "src/uncertainty_jnr/loss.py": "70364f3843f85bfb46754d1766a15dc681eb2cdec14c3a5757418b5c1638bc45",
+    "src/uncertainty_jnr/model.py": "a6fa70ccdde09aad61babe0e80cfb9feb1e6089a03f2812b72ea9ca87e64da56",
+    "src/uncertainty_jnr/original_model.py": "8dcf26699f0119cc7c334cb4adc19e258af03303959d5e45c150a41461502140",
+    "src/uncertainty_jnr/utils.py": "1a1cea55818cbd7e0584180b89d2e6bb00f0d916c1b77023ef48c06093cb7729",
+    "tools/.python-version": "f01d748a75eb195e6fd73201279bfb23f09036ddd360eb3e9ff40ef042acbc8a",
+    "tools/README.md": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tools/evaluate_official_benchmark.py": "5b98b95ecf3c8787eec4b71c920fbbe127dcc779d8de1f9927e5abbde03fa16c",
+    "tools/evaluate_sjn210k_imagelevel.py": "00012d0c9724d753cac1bd8825f956d0b07cca7b22e1f814885d2ae202a4f19f",
+    "tools/pyproject.toml": "1b8b5df337c3ed28612c0075aaca81b35973c2172e2ad6264f99dd1bc8eac1bf",
+    "tools/validate.py": "299602d640287ee0cce77af67c4684dd864e0cce3f95695b3b72f191d527c2cb",
+    "tools/validate_compare_web.py": "4e40b71c689eb89282632d7b890433c996f9b54f5d9ae9ec2c1a0e5d74304eb6",
+    "tools/validate_viewer_web.py": "f508416b7002203b791b55fbf5e8d336698c58ae37161865e6dfb400344f53a6",
+    "tools/visualize_attention.py": "8874c7a590ef533aad25bafccbc1781b8e67c44b3fc7ed7935e84d4c04cd7ba3",
+    "tools/visualize_tsne.py": "5551079e55ccd4f93c9eb448b3b686574a505c117877cf846b780b7269b42abc",
+    "train.py": "9f92dbd365c307fbbab7eda2753550722ced26527578b108bd5c8ab9a38704a7"
+  }
+}

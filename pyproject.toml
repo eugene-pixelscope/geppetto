@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "geppetto"
+version = "0.4.0"
+description = "Independent training catalog, responsive UI and execution contracts"
+requires-python = ">=3.12"
+dependencies = ["argon2-cffi==25.1.0", "jsonschema==4.25.1", "fastapi==0.141.1", "uvicorn==0.54.0", "httpx==0.28.1", "croniter==6.2.4", "pillow==12.3.0"]
+
+[project.optional-dependencies]
+export = ["pydantic==2.12.0", "PyYAML==6.0.2"]
+
+[project.scripts]
+geppetto = "geppetto.cli:main"
+geppetto-server = "geppetto.app:main"
+
+[tool.setuptools.packages.find]
+include = ["geppetto*"]
+
+[tool.setuptools.data-files]
+"share/geppetto/contracts" = ["contracts/*.json"]
+"share/geppetto/contracts/templates" = ["contracts/templates/*.json"]
+"share/geppetto/web" = ["web/*.html", "web/*.js", "web/*.css", "web/*.png"]
+"share/geppetto/web/fonts" = ["web/fonts/*"]
+
+"share/geppetto/deploy" = ["deploy/agent.example.yaml", "deploy/agent-execution.example.yaml", "deploy/agent-execution.patch.yaml"]
+
+"share/geppetto/web/vendor" = ["web/vendor/*"]
+"share/geppetto/docs" = ["docs/PYTHON_SDK.md", "docs/PLATFORM_0_2.md", "docs/PLATFORM_0_3.md", "docs/ACCOUNTS.md", "docs/RUN_HISTORY.md", "docs/DETECTION_VISUALS.md", "docs/GRADCAM.md"]
+"share/geppetto/dist" = ["dist/geppetto_sdk-*.whl"]

@@ -1,0 +1,109 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: geppetto-local-agent-state
+  namespace: geppetto-agent
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: geppetto-local-agent
+  namespace: geppetto-agent
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: geppetto-local-agent
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: geppetto-local-agent
+    spec:
+      containers:
+      - command:
+        - python
+        - -m
+        - geppetto.agent
+        env:
+        - name: GEPPETTO_SERVER_URL
+          valueFrom:
+            secretKeyRef:
+              key: server-url
+              name: geppetto-local-agent-registration
+        - name: GEPPETTO_CLUSTER_ID
+          valueFrom:
+            secretKeyRef:
+              key: cluster-id
+              name: geppetto-local-agent-registration
+        - name: GEPPETTO_BOOTSTRAP_TOKEN
+          valueFrom:
+            secretKeyRef:
+              key: bootstrap-token
+              name: geppetto-local-agent-registration
+        - name: GEPPETTO_AGENT_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: GEPPETTO_SERVER_CA
+          value: /ca/ca.crt
+        - name: GEPPETTO_AGENT_EXECUTION_POLICY
+          value: /policy/policy.json
+        - name: GEPPETTO_AGENT_RESULTS_ROOT
+          value: /results
+        image: geppetto:20261001-01
+        imagePullPolicy: Never
+        name: agent
+        resources:
+          limits:
+            cpu: 250m
+            memory: 256Mi
+          requests:
+            cpu: 50m
+            memory: 64Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+        volumeMounts:
+        - mountPath: /state
+          name: state
+        - mountPath: /ca
+          name: ca
+          readOnly: true
+        - mountPath: /policy
+          name: policy
+          readOnly: true
+        - mountPath: /results
+          name: results
+          readOnly: true
+      securityContext:
+        fsGroup: 10001
+        runAsGroup: 10001
+        runAsNonRoot: true
+        runAsUser: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      serviceAccountName: geppetto-agent
+      volumes:
+      - name: state
+        persistentVolumeClaim:
+          claimName: geppetto-local-agent-state
+      - configMap:
+          name: geppetto-local-agent-ca
+        name: ca
+      - configMap:
+          name: geppetto-local-agent-execution
+        name: policy
+      - name: results
+        persistentVolumeClaim:
+          claimName: geppetto-results

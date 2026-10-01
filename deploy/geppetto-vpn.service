@@ -1,0 +1,9 @@
+[Unit]
+Description=Geppetto office VPN connection
+Requires=geppetto-catalog.service
+After=geppetto-catalog.service
+
+[Service]
+ExecStart=/usr/lib/systemd/systemd-socket-proxyd 127.0.0.1:8091
+Restart=on-failure
+RestartSec=5

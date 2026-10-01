@@ -1,0 +1,51 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: geppetto-agent-execution
+  namespace: geppetto-agent
+rules:
+- apiGroups:
+  - batch
+  resources:
+  - jobs
+  verbs:
+  - get
+  - create
+  - delete
+- apiGroups:
+  - ''
+  resources:
+  - pods
+  - pods/log
+  verbs:
+  - get
+  - list
+- apiGroups: ['']
+  resources: [services]
+  verbs: [get, create]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: geppetto-agent-execution
+  namespace: geppetto-agent
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: geppetto-agent-execution
+subjects:
+- kind: ServiceAccount
+  name: geppetto-agent
+  namespace: geppetto-agent
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: geppetto-agent-execution
+  namespace: geppetto-agent
+data:
+  policy.json: '{"images": ["localhost:5001/geppetto-ball@sha256:df87eb70593853519fb675e7c02935af08a369d75f77f0d6e1c38caa5ff8c526",
+    "localhost:5001/geppetto-ball@sha256:bad1a6f25015beb7e6cf548349d3fda7a56a05ce8cbb2113e69476d00273f0e0",
+    "localhost:5001/geppetto-ball@sha256:bc83b58c4882a73845d14cf4c28bfb1cb23a2e384f9fc2029f16cd5ecb4ed75c",
+    "localhost:5001/geppetto-ball@sha256:8925a20f12aa8a59781f3ed844fd21e2a736eb4b2211a8ecd427313d6557858b"],
+    "pvcs": ["geppetto-datasets", "geppetto-results"], "results_pvc": "geppetto-results"}'

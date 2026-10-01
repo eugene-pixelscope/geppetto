@@ -1,0 +1,806 @@
+{
+  "contract_version": "0.1",
+  "model_id": "uncertainty-jnr",
+  "source": {
+    "commit": "0434562ea1497643e8230a6b25eb3d2932559f95",
+    "files_sha256": {
+      "config.py": "8a70cbfeaed4f0d07feab816b0101950075356100d9b12e407a64700f75b9165",
+      "configs/base8_reid.yaml": "50eb3074945056101596d3ec79d474b809d6efddf805b9c3f1ea140540484ee8",
+      "configs/sf1_id_cropped_transformer_da.yaml": "dca2d6362a5b3366ef89a260f5c2efa508f244dcca3b301500c603b913b8ccae",
+      "configs/sf1_id_cropped_transformer_tied.yaml": "119db09a74907b6a28ee82a0c29b87b4a4495d43f01a931722d69de66156fa27",
+      "configs/soccernet_full_base8_paper_aug.yaml": "defc0851694d8ddea9d9256f53bd36dca126de9ac8ed62cc851851f5164ee23a",
+      "configs/soccernet_full_da_paper_aug_auxdigit.yaml": "e6cedc17957936047b4df5eb20553700880a67432938734e94de5de57a12ee4d",
+      "configs/soccernet_full_da_paper_aug_auxdigit_clean.yaml": "92a1e00803005de74fdf367709b850ac209665f0ceb2a717c2667fc9f7591c0b",
+      "configs/soccernet_full_tied_paper_aug_auxdigit.yaml": "7c86733392c1e6dfb5f59801c498cbcc180d538a88b8b14aa4641b00d5aa9cc1",
+      "configs/soccernet_full_tied_paper_aug_auxdigit_clean.yaml": "e3667840e235f85433cab51138d3beaedb00ca0aa8dbfb55263f25a73185cbcd",
+      "pyproject.toml": "fba25ffd9474d492b794648744020a6dd37999974e9d3fe2eb091d60cfdf0b28",
+      "src/uncertainty_jnr/__init__.py": "219ec92e97b5038ce89a919dd5a57e53913bd4b46c83fd50b0f022d64d41922b",
+      "src/uncertainty_jnr/augmentation.py": "cab27f56a3116320c7791bdc60562949fea923288999c9d7a83f95224e706b57",
+      "src/uncertainty_jnr/data.py": "1c0b2f39c6d657c17df71857cd7ef303eb79219f8ad6e98080ec7a761ca7f814",
+      "src/uncertainty_jnr/datasets.py": "6bd827d5851a8252878cd60acad535d6bf188394a70ac3012f41a1ee47fc790d",
+      "src/uncertainty_jnr/explain_viz.py": "416b4b478cac4ec28402951738011d82297fbf469592c6e4e171beb7d91accf2",
+      "src/uncertainty_jnr/loss.py": "70364f3843f85bfb46754d1766a15dc681eb2cdec14c3a5757418b5c1638bc45",
+      "src/uncertainty_jnr/model.py": "a6fa70ccdde09aad61babe0e80cfb9feb1e6089a03f2812b72ea9ca87e64da56",
+      "src/uncertainty_jnr/original_model.py": "8dcf26699f0119cc7c334cb4adc19e258af03303959d5e45c150a41461502140",
+      "src/uncertainty_jnr/utils.py": "1a1cea55818cbd7e0584180b89d2e6bb00f0d916c1b77023ef48c06093cb7729",
+      "tools/.python-version": "f01d748a75eb195e6fd73201279bfb23f09036ddd360eb3e9ff40ef042acbc8a",
+      "tools/README.md": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "tools/evaluate_official_benchmark.py": "5b98b95ecf3c8787eec4b71c920fbbe127dcc779d8de1f9927e5abbde03fa16c",
+      "tools/evaluate_sjn210k_imagelevel.py": "00012d0c9724d753cac1bd8825f956d0b07cca7b22e1f814885d2ae202a4f19f",
+      "tools/pyproject.toml": "1b8b5df337c3ed28612c0075aaca81b35973c2172e2ad6264f99dd1bc8eac1bf",
+      "tools/validate.py": "299602d640287ee0cce77af67c4684dd864e0cce3f95695b3b72f191d527c2cb",
+      "tools/validate_compare_web.py": "4e40b71c689eb89282632d7b890433c996f9b54f5d9ae9ec2c1a0e5d74304eb6",
+      "tools/validate_viewer_web.py": "f508416b7002203b791b55fbf5e8d336698c58ae37161865e6dfb400344f53a6",
+      "tools/visualize_attention.py": "8874c7a590ef533aad25bafccbc1781b8e67c44b3fc7ed7935e84d4c04cd7ba3",
+      "tools/visualize_tsne.py": "5551079e55ccd4f93c9eb448b3b686574a505c117877cf846b780b7269b42abc",
+      "train.py": "9f92dbd365c307fbbab7eda2753550722ced26527578b108bd5c8ab9a38704a7"
+    },
+    "tree_sha256": "d020a8736909020ff590b994d8a0948e9689fafc47fabf215a5b374e6e25ef28",
+    "preset": "configs/soccernet_full_da_paper_aug_auxdigit.yaml",
+    "hash_scope": [
+      "config.py",
+      "train.py",
+      "pyproject.toml",
+      "configs",
+      "src",
+      "tools"
+    ]
+  },
+  "export_environment": {
+    "python": "3.12.3",
+    "pydantic": "2.12.0",
+    "pyyaml": "6.0.2"
+  },
+  "schema_sha256": "31d93c105032b3ca14b159587d86e36fefb5d681d1113569e70912e2b4805ce8",
+  "schema": {
+    "$defs": {
+      "DataConfig": {
+        "description": "Data loading configuration.",
+        "properties": {
+          "root_dir": {
+            "format": "path",
+            "title": "Root Dir",
+            "type": "string"
+          },
+          "cache_dir": {
+            "format": "path",
+            "title": "Cache Dir",
+            "type": "string"
+          },
+          "target_size": {
+            "default": [
+              224,
+              224
+            ],
+            "maxItems": 2,
+            "minItems": 2,
+            "prefixItems": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "integer"
+              }
+            ],
+            "title": "Target Size",
+            "type": "array"
+          },
+          "batch_size": {
+            "default": 32,
+            "title": "Batch Size",
+            "type": "integer"
+          },
+          "num_workers": {
+            "default": 4,
+            "title": "Num Workers",
+            "type": "integer"
+          },
+          "pin_memory": {
+            "default": true,
+            "title": "Pin Memory",
+            "type": "boolean"
+          },
+          "train_val_split": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Train Val Split"
+          },
+          "val_batch_size": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Val Batch Size"
+          },
+          "repeat_train_dataset": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Repeat Train Dataset"
+          },
+          "train_dataset_names": {
+            "default": [
+              "reid_all"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "title": "Train Dataset Names",
+            "type": "array"
+          },
+          "val_dataset_names": {
+            "default": [
+              "base"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "title": "Val Dataset Names",
+            "type": "array"
+          },
+          "masked_numbers": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Masked Numbers"
+          },
+          "interpolation_method": {
+            "default": "cubic",
+            "enum": [
+              "linear",
+              "cubic"
+            ],
+            "title": "Interpolation Method",
+            "type": "string"
+          },
+          "train_aug_p": {
+            "default": 0.5,
+            "title": "Train Aug P",
+            "type": "number"
+          },
+          "train_aug_p_scale": {
+            "default": 0.8,
+            "title": "Train Aug P Scale",
+            "type": "number"
+          },
+          "center_crop": {
+            "default": true,
+            "title": "Center Crop",
+            "type": "boolean"
+          },
+          "demote_keys_file": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Demote Keys File"
+          }
+        },
+        "required": [
+          "root_dir",
+          "cache_dir"
+        ],
+        "title": "DataConfig",
+        "type": "object",
+        "additionalProperties": false
+      },
+      "LoggingConfig": {
+        "description": "Logging configuration.",
+        "properties": {
+          "base_dir": {
+            "format": "path",
+            "title": "Base Dir",
+            "type": "string"
+          },
+          "experiment_name": {
+            "default": "jersey_ocr",
+            "title": "Experiment Name",
+            "type": "string"
+          },
+          "num_val_visualizations": {
+            "default": 16,
+            "title": "Num Val Visualizations",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "base_dir"
+        ],
+        "title": "LoggingConfig",
+        "type": "object",
+        "additionalProperties": false
+      },
+      "LossConfig": {
+        "description": "Loss function configuration.",
+        "properties": {
+          "loss_type": {
+            "default": "dirichlet",
+            "enum": [
+              "dirichlet",
+              "softmax"
+            ],
+            "title": "Loss Type",
+            "type": "string"
+          },
+          "warmup_steps": {
+            "default": 2500,
+            "title": "Warmup Steps",
+            "type": "integer"
+          },
+          "reg_weight": {
+            "default": 0.001,
+            "title": "Reg Weight",
+            "type": "number"
+          },
+          "max_reg_weight": {
+            "default": 0.05,
+            "title": "Max Reg Weight",
+            "type": "number"
+          },
+          "label_smoothing": {
+            "default": 0.0,
+            "title": "Label Smoothing",
+            "type": "number"
+          },
+          "spatial_loss_type": {
+            "default": "centroid",
+            "enum": [
+              "centroid",
+              "wasserstein"
+            ],
+            "title": "Spatial Loss Type",
+            "type": "string"
+          },
+          "spatial_loss_weight": {
+            "default": 0.0,
+            "title": "Spatial Loss Weight",
+            "type": "number"
+          },
+          "spatial_loss_margin": {
+            "default": 1.5,
+            "title": "Spatial Loss Margin",
+            "type": "number"
+          },
+          "spatial_loss_max_margin": {
+            "default": 3.5,
+            "title": "Spatial Loss Max Margin",
+            "type": "number"
+          },
+          "spatial_loss_warmup_steps": {
+            "default": 0,
+            "title": "Spatial Loss Warmup Steps",
+            "type": "integer"
+          },
+          "digit_aux_loss_weight": {
+            "default": 0.0,
+            "title": "Digit Aux Loss Weight",
+            "type": "number"
+          }
+        },
+        "title": "LossConfig",
+        "type": "object",
+        "additionalProperties": false
+      },
+      "ModelConfig": {
+        "description": "Model configuration.",
+        "properties": {
+          "model_name": {
+            "default": "vit_base_patch16_224",
+            "title": "Model Name",
+            "type": "string"
+          },
+          "pretrained": {
+            "default": true,
+            "title": "Pretrained",
+            "type": "boolean"
+          },
+          "gradient_clip_val": {
+            "default": 1.0,
+            "title": "Gradient Clip Val",
+            "type": "number"
+          },
+          "finetune_from": {
+            "anyOf": [
+              {
+                "format": "path",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Finetune From"
+          },
+          "strict_loading": {
+            "default": true,
+            "title": "Strict Loading",
+            "type": "boolean"
+          },
+          "model_kwargs": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Model Kwargs"
+          },
+          "classifier_type": {
+            "default": "independent",
+            "title": "Classifier Type",
+            "type": "string"
+          },
+          "embedding_type": {
+            "default": "additive",
+            "title": "Embedding Type",
+            "type": "string"
+          },
+          "per_digit_bias": {
+            "default": true,
+            "title": "Per Digit Bias",
+            "type": "boolean"
+          },
+          "uncertainty_head": {
+            "default": "dirichlet",
+            "enum": [
+              "dirichlet",
+              "softmax"
+            ],
+            "title": "Uncertainty Head",
+            "type": "string"
+          },
+          "transformer_num_heads": {
+            "default": 8,
+            "title": "Transformer Num Heads",
+            "type": "integer"
+          },
+          "transformer_num_layers": {
+            "default": 2,
+            "title": "Transformer Num Layers",
+            "type": "integer"
+          },
+          "transformer_decoder_dropout": {
+            "default": 0.1,
+            "title": "Transformer Decoder Dropout",
+            "type": "number"
+          },
+          "use_tied_weights": {
+            "default": false,
+            "title": "Use Tied Weights",
+            "type": "boolean"
+          }
+        },
+        "title": "ModelConfig",
+        "type": "object",
+        "additionalProperties": false
+      },
+      "NoiseFinetuningConfig": {
+        "description": "Configuration for noise-interpolated finetuning.",
+        "properties": {
+          "max_noise": {
+            "default": 1.0,
+            "title": "Max Noise",
+            "type": "number"
+          },
+          "noise_warmup": {
+            "default": 0.0001,
+            "title": "Noise Warmup",
+            "type": "number"
+          }
+        },
+        "title": "NoiseFinetuningConfig",
+        "type": "object",
+        "additionalProperties": false
+      },
+      "TrainingConfig": {
+        "description": "Training configuration.",
+        "properties": {
+          "seed": {
+            "default": 42,
+            "title": "Seed",
+            "type": "integer"
+          },
+          "max_epochs": {
+            "default": 10,
+            "title": "Max Epochs",
+            "type": "integer"
+          },
+          "learning_rate": {
+            "default": 0.0001,
+            "title": "Learning Rate",
+            "type": "number"
+          },
+          "weight_decay": {
+            "default": 0.0001,
+            "title": "Weight Decay",
+            "type": "number"
+          },
+          "warmup_steps": {
+            "default": 100,
+            "title": "Warmup Steps",
+            "type": "integer"
+          },
+          "final_lr_scale": {
+            "default": 0.1,
+            "title": "Final Lr Scale",
+            "type": "number"
+          },
+          "use_amp": {
+            "default": false,
+            "title": "Use Amp",
+            "type": "boolean"
+          },
+          "compile_model": {
+            "default": false,
+            "title": "Compile Model",
+            "type": "boolean"
+          },
+          "logging_steps": {
+            "default": 10,
+            "title": "Logging Steps",
+            "type": "integer"
+          },
+          "validation_steps": {
+            "default": 1000,
+            "title": "Validation Steps",
+            "type": "integer"
+          },
+          "debug": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Debug"
+          },
+          "debug_samples": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Debug Samples"
+          },
+          "noise_finetuning": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/NoiseFinetuningConfig"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "save_best_only": {
+            "default": true,
+            "title": "Save Best Only",
+            "type": "boolean"
+          },
+          "backbone_lr": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Backbone Lr"
+          }
+        },
+        "title": "TrainingConfig",
+        "type": "object",
+        "additionalProperties": false
+      },
+      "WandbConfig": {
+        "description": "Weights & Biases (wandb) logging configuration.",
+        "properties": {
+          "enabled": {
+            "default": false,
+            "title": "Enabled",
+            "type": "boolean"
+          },
+          "project": {
+            "default": "uncertainty-jnr",
+            "title": "Project",
+            "type": "string"
+          },
+          "entity": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Entity"
+          },
+          "run_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Run Name"
+          },
+          "log_val_images": {
+            "default": true,
+            "title": "Log Val Images",
+            "type": "boolean"
+          }
+        },
+        "title": "WandbConfig",
+        "type": "object",
+        "additionalProperties": false
+      }
+    },
+    "description": "Main configuration.",
+    "properties": {
+      "data": {
+        "$ref": "#/$defs/DataConfig"
+      },
+      "model": {
+        "$ref": "#/$defs/ModelConfig"
+      },
+      "training": {
+        "$ref": "#/$defs/TrainingConfig"
+      },
+      "logging": {
+        "$ref": "#/$defs/LoggingConfig"
+      },
+      "loss": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/LossConfig"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null
+      },
+      "wandb": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/WandbConfig"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null
+      }
+    },
+    "required": [
+      "data",
+      "model",
+      "training",
+      "logging"
+    ],
+    "title": "Config",
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "additionalProperties": false
+  },
+  "preset": {
+    "data": {
+      "root_dir": "data",
+      "cache_dir": "cache",
+      "target_size": [
+        224,
+        224
+      ],
+      "train_val_split": 0.8,
+      "batch_size": 64,
+      "val_batch_size": 64,
+      "num_workers": 8,
+      "pin_memory": true,
+      "train_dataset_names": [
+        "reid_all",
+        "soccernet_train_full"
+      ],
+      "val_dataset_names": [
+        "soccernet_test_sample",
+        "dus_validation"
+      ]
+    },
+    "model": {
+      "model_name": "vit_base_patch8_224.augreg2_in21k_ft_in1k",
+      "pretrained": true,
+      "gradient_clip_val": 1.0,
+      "finetune_from": null,
+      "classifier_type": "transformer_da",
+      "use_tied_weights": false,
+      "uncertainty_head": "dirichlet",
+      "transformer_num_heads": 8,
+      "transformer_num_layers": 1,
+      "transformer_decoder_dropout": 0.1
+    },
+    "loss": {
+      "loss_type": "dirichlet",
+      "warmup_steps": 2500,
+      "reg_weight": 0.001,
+      "max_reg_weight": 0.05,
+      "label_smoothing": 0.01,
+      "spatial_loss_type": "wasserstein",
+      "spatial_loss_weight": 0.1,
+      "spatial_loss_margin": 0.15,
+      "spatial_loss_max_margin": 0.1,
+      "spatial_loss_warmup_steps": 1000,
+      "digit_aux_loss_weight": 0.1
+    },
+    "training": {
+      "seed": 42,
+      "max_epochs": 10,
+      "learning_rate": 0.0002,
+      "warmup_steps": 500,
+      "final_lr_scale": 0.4,
+      "use_amp": true,
+      "compile_model": true,
+      "debug": false,
+      "debug_samples": 1000,
+      "logging_steps": 250,
+      "validation_steps": 500,
+      "save_best_only": true
+    },
+    "logging": {
+      "base_dir": "runs",
+      "experiment_name": "soccernet_full_da_paper_aug_auxdigit",
+      "num_val_visualizations": 16
+    },
+    "wandb": {
+      "enabled": true,
+      "project": "uncertainty-jnr",
+      "run_name": "soccernet_full_da_paper_aug_auxdigit",
+      "log_val_images": true
+    }
+  },
+  "resolved_preset": {
+    "data": {
+      "root_dir": "/workspace/model/data",
+      "cache_dir": "/workspace/model/cache",
+      "target_size": [
+        224,
+        224
+      ],
+      "batch_size": 64,
+      "num_workers": 8,
+      "pin_memory": true,
+      "train_val_split": 0.8,
+      "val_batch_size": 64,
+      "repeat_train_dataset": null,
+      "train_dataset_names": [
+        "reid_all",
+        "soccernet_train_full"
+      ],
+      "val_dataset_names": [
+        "soccernet_test_sample",
+        "dus_validation"
+      ],
+      "masked_numbers": null,
+      "interpolation_method": "cubic",
+      "train_aug_p": 0.5,
+      "train_aug_p_scale": 0.8,
+      "center_crop": true,
+      "demote_keys_file": null
+    },
+    "model": {
+      "model_name": "vit_base_patch8_224.augreg2_in21k_ft_in1k",
+      "pretrained": true,
+      "gradient_clip_val": 1.0,
+      "finetune_from": null,
+      "strict_loading": true,
+      "model_kwargs": null,
+      "classifier_type": "transformer_da",
+      "embedding_type": "additive",
+      "per_digit_bias": true,
+      "uncertainty_head": "dirichlet",
+      "transformer_num_heads": 8,
+      "transformer_num_layers": 1,
+      "transformer_decoder_dropout": 0.1,
+      "use_tied_weights": false
+    },
+    "training": {
+      "seed": 42,
+      "max_epochs": 10,
+      "learning_rate": 0.0002,
+      "weight_decay": 0.0001,
+      "warmup_steps": 500,
+      "final_lr_scale": 0.4,
+      "use_amp": true,
+      "compile_model": true,
+      "logging_steps": 250,
+      "validation_steps": 500,
+      "debug": false,
+      "debug_samples": 1000,
+      "noise_finetuning": null,
+      "save_best_only": true,
+      "backbone_lr": null
+    },
+    "logging": {
+      "base_dir": "/workspace/model/runs",
+      "experiment_name": "soccernet_full_da_paper_aug_auxdigit",
+      "num_val_visualizations": 16
+    },
+    "loss": {
+      "loss_type": "dirichlet",
+      "warmup_steps": 2500,
+      "reg_weight": 0.001,
+      "max_reg_weight": 0.05,
+      "label_smoothing": 0.01,
+      "spatial_loss_type": "wasserstein",
+      "spatial_loss_weight": 0.1,
+      "spatial_loss_margin": 0.15,
+      "spatial_loss_max_margin": 0.1,
+      "spatial_loss_warmup_steps": 1000,
+      "digit_aux_loss_weight": 0.1
+    },
+    "wandb": {
+      "enabled": true,
+      "project": "uncertainty-jnr",
+      "entity": null,
+      "run_name": "soccernet_full_da_paper_aug_auxdigit",
+      "log_val_images": true
+    }
+  },
+  "managed_fields": [
+    "data.root_dir",
+    "data.cache_dir",
+    "logging.base_dir",
+    "logging.experiment_name",
+    "wandb.enabled"
+  ]
+}

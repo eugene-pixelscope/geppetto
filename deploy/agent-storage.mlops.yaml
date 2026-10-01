@@ -1,0 +1,33 @@
+# Single-node mlops: reuse the existing read-only dataset mount through a local PV.
+# Remote servers must provision their own dataset PVC and matching content version.
+apiVersion: v1
+kind: PersistentVolume
+metadata: {name: geppetto-datasets-mlops}
+spec:
+  capacity: {storage: 1Ti}
+  volumeMode: Filesystem
+  accessModes: [ReadOnlyMany]
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  local: {path: /datasets}
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - {key: kubernetes.io/hostname, operator: In, values: [mlops]}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata: {name: geppetto-datasets, namespace: geppetto-agent}
+spec:
+  accessModes: [ReadOnlyMany]
+  volumeName: geppetto-datasets-mlops
+  storageClassName: ""
+  resources: {requests: {storage: 1Ti}}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata: {name: geppetto-results, namespace: geppetto-agent}
+spec:
+  accessModes: [ReadWriteOnce]
+  resources: {requests: {storage: 30Gi}}

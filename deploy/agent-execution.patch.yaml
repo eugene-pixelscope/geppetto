@@ -1,0 +1,18 @@
+# kubectl patch deployment/geppetto-agent -n geppetto-agent
+#   --type=strategic --patch-file deploy/agent-execution.patch.yaml
+spec:
+  template:
+    spec:
+      containers:
+        - name: agent
+          env:
+            - {name: GEPPETTO_AGENT_EXECUTION_POLICY, value: /policy/policy.json}
+            - {name: GEPPETTO_AGENT_RESULTS_ROOT, value: /results}
+          volumeMounts:
+            - {name: execution-policy, mountPath: /policy, readOnly: true}
+            - {name: results, mountPath: /results, readOnly: true}
+      volumes:
+        - name: execution-policy
+          configMap: {name: geppetto-agent-execution}
+        - name: results
+          persistentVolumeClaim: {claimName: geppetto-results}

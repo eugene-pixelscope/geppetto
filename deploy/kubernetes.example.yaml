@@ -1,0 +1,68 @@
+# EXAMPLE ONLY. Requires a separately approved namespace, image and token Secret.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: geppetto
+  namespace: geppetto-validation
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels: {app: geppetto}
+  template:
+    metadata:
+      labels: {app: geppetto}
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+      containers:
+        - name: app
+          image: REPLACE_WITH_IMMUTABLE_GEPPETTO_IMAGE
+          ports: [{containerPort: 8091}]
+          env:
+            - {name: GEPPETTO_MODE, value: catalog}
+            - {name: GEPPETTO_HOME, value: /state}
+            - {name: GEPPETTO_ALLOWED_HOSTS, value: geppetto.internal,127.0.0.1,localhost}
+            - name: GEPPETTO_TOKEN
+              valueFrom:
+                secretKeyRef: {name: geppetto-access, key: token}
+          resources:
+            requests: {cpu: 100m, memory: 256Mi}
+            limits: {cpu: "1", memory: 1Gi}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: {drop: [ALL]}
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 8091
+              httpHeaders: [{name: Host, value: localhost}]
+          volumeMounts:
+            - {name: state, mountPath: /state}
+            - {name: tmp, mountPath: /tmp}
+      volumes:
+        - name: state
+          persistentVolumeClaim: {claimName: geppetto-state}
+        - name: tmp
+          emptyDir: {}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata: {name: geppetto-state, namespace: geppetto-validation}
+spec:
+  accessModes: [ReadWriteOnce]
+  resources:
+    requests: {storage: 5Gi}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: geppetto, namespace: geppetto-validation}
+spec:
+  type: ClusterIP
+  selector: {app: geppetto}
+  ports: [{port: 8091, targetPort: 8091}]

@@ -1,0 +1,13 @@
+[Unit]
+Description=Geppetto 8091 Agent TLS gateway
+After=geppetto-catalog.service
+Requires=geppetto-catalog.service
+
+[Service]
+WorkingDirectory=%h/geppetto
+ExecStart=%h/geppetto/.venv/bin/python -m uvicorn geppetto.agent_gateway:app --host 192.168.49.1 --port 8094 --ssl-keyfile %h/geppetto/local/agent-gateway/tls.key --ssl-certfile %h/geppetto/local/agent-gateway/tls.crt --no-access-log
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=default.target

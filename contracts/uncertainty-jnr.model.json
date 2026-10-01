@@ -1,0 +1,56 @@
+{
+  "contract_version": "0.1",
+  "model_id": "uncertainty-jnr",
+  "category": "jersey-recognition",
+  "code_commit": "0434562ea1497643e8230a6b25eb3d2932559f95",
+  "config_bundle": "uncertainty-jnr.config.json",
+  "entrypoint": ["python", "train.py", "--config", "{resolved_config_yaml}"],
+  "image_digest": null,
+  "execution_enabled": false,
+  "capabilities": {
+    "initialize_from_weights": "present-in-code",
+    "resume": "unsupported-until-validated",
+    "single_gpu": "unverified",
+    "multi_gpu": "present-in-code-unverified",
+    "specific_gpu_uuid": "unverified",
+    "mlflow": "adapter-required"
+  },
+  "datasets": [
+    {"name": "reid_all", "split": "train", "directories": ["soccernet_reid_train", "soccernet_reid_valid", "soccernet_reid_test", "soccernet_reid_challenge"]},
+    {"name": "soccernet_train_full", "split": "train", "directories": ["soccernet_train"]},
+    {"name": "soccernet_test_sample", "split": "validation", "directories": ["soccernet_test"], "limit_samples": 50000},
+    {"name": "dus_validation", "split": "validation", "directories": ["dus_validation"]}
+  ],
+  "evaluation_policy": {
+    "unit": "image",
+    "target_size": [224, 224],
+    "center_crop": true,
+    "interpolation": "cubic",
+    "filter_invalid": true,
+    "effective_samples": null,
+    "independent_final_test": "unverified",
+    "primary_dataset": "soccernet_test_sample"
+  },
+  "metrics": [
+    {"key": "train/loss", "direction": "minimize", "unit": "scalar", "step": "global_step"},
+    {"key": "train/top1_acc", "direction": "maximize", "unit": "percent", "step": "global_step"},
+    {"key": "train/learning_rate", "direction": "none", "unit": "scalar", "step": "global_step"},
+    {"key": "val/{dataset}_clean/top1_acc", "direction": "maximize", "unit": "percent", "step": "global_step"},
+    {"key": "val/{dataset}_clean/masked_top1_acc", "direction": "maximize", "unit": "percent", "step": "global_step"}
+  ],
+  "metric_transport": "upstream-wandb-only; geppetto-mlflow-not-implemented",
+  "artifacts": [
+    {"pattern": "best_checkpoint.pt", "role": "inference_weights", "resume": false},
+    {"pattern": "checkpoints/step_*.pt", "role": "inference_weights", "resume": false},
+    {"pattern": "latest_checkpoint.pt", "role": "inference_weights", "resume": false, "condition": "save_best_only=false"}
+  ],
+  "ui": {
+    "groups": {"data": "Data", "model": "Model", "training": "Training", "loss": "Loss", "logging": "Record", "wandb": "External tracking"},
+    "fields": {
+      "training.max_epochs": {"label": "Maximum epochs", "group": "basic", "unit": "epoch"},
+      "training.learning_rate": {"label": "Learning rate", "group": "basic"},
+      "model.transformer_num_layers": {"label": "Transformer layers", "group": "advanced"},
+      "loss.digit_aux_loss_weight": {"label": "Auxiliary digit loss weight", "group": "advanced"}
+    }
+  }
+}

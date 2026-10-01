@@ -1,0 +1,17 @@
+services:
+  geppetto:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    ports:
+      - "127.0.0.1:8091:8091"
+    environment:
+      GEPPETTO_MODE: catalog
+      GEPPETTO_HOME: /state
+      GEPPETTO_TOKEN: ${GEPPETTO_TOKEN:?set a personal access token}
+      GEPPETTO_ALLOWED_HOSTS: localhost,127.0.0.1
+    volumes:
+      - geppetto-state:/state
+    restart: unless-stopped
+volumes:
+  geppetto-state:
